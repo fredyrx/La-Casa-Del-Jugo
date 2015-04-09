@@ -18,9 +18,19 @@ struct Usuario {
 		hash.erase(0,full_name.length()+delimiter.length());
 		profile = hash.substr(0,hash.find(delimiter));
 	};
-
 };
+
+int print_logo(){
+	ifstream input("usuarios.txt");
+	string s,line;
+	while (getline(input,line)){	
+		cout << line << endl;
+	 }	
+	 return 0;
+};
+
 int main(){
+ print_logo;
  char user;
  char password;
  string users[10];
