@@ -1,0 +1,7 @@
+1|inicio|
+2|pedido|
+3|pagos|
+4|stock|
+5|finanzas|
+6|mantenimiento|
+7|miscelaneos|
