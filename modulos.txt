@@ -1,7 +1,7 @@
-1|inicio|
-2|pedido|
-3|pagos|
-4|stock|
-5|finanzas|
-6|mantenimiento|
-7|miscelaneos|
+1|INICIO|
+2|PEDIDOS|
+3|PAGOS|
+4|STOCK|
+5|FINANZAS|
+6|MANTENIMIENTO|
+7|MISCELANEOS|

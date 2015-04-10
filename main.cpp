@@ -21,7 +21,7 @@ class Permiso {
 	}
 };
 
-class Opcion {
+class UsuarioPermiso {
 	public:
 	string delimiter;
 	string username, codigo;
@@ -42,32 +42,74 @@ public:
 	string delimiter;
 	string username,password,full_name,profile,text_encoded;
 	list<Permiso> permisos;
-	list<Opcion> modulos;
+	list<UsuarioPermiso> perfil;
 	Usuario(){
 		//decodificar(hash);
 		// A partir de la cadena separamos los parametros
 	};
 	void leer_perfil(){
-		cout << "Cargando permisos ..." << endl;
+		//cout << "Leyendo perfil de usuario ..." << endl;
 		ifstream in("perfiles.txt");
 	 	string s,reg;
 	 	int contador;
 	 	// Cargamos los permisos segun perfil
 	 	contador = 0;
 	 	while (getline(in,reg)){	
-			Opcion opcion;
+			UsuarioPermiso opcion;
 			opcion.decodificar(reg);
 			if (username.compare(opcion.username)==0){
-				modulos.push_back(opcion);
+				perfil.push_back(opcion);
 			} 
-			opcion.to_string();
+			//opcion.to_string();
 			contador = contador + 1;
 	 	}
-	 	cout << "Total de permisos: " << modulos.size() << endl;
+	 	//cout << "Total de permisos: " << perfil.size() << endl;
 	}
 
+	// Metodo no usado
 	void cargar_modulos(){
-
+		list<UsuarioPermiso>::iterator it;
+		it = perfil.begin();
+		// Hasta recorrer todos los emementos
+		while(it != perfil.end()){
+			cout << "#Mis permisos" << endl;
+			cout << it->username << " " << it->codigo << endl;
+			it++;
+		}
+	}
+	void cargar_permisos(){
+		cout << "Cargando modulos de usuario ..." << endl;
+		ifstream in("modulos.txt");
+	 	string s,reg;
+		list<UsuarioPermiso>::iterator it;
+	 	int contador;
+	 	// Cargamos los permisos segun perfil
+	 	contador = 0;
+	 	while (getline(in,reg)){	
+			Permiso p;
+			p.decodificar(reg);
+			// Cramos iterador
+			it = perfil.begin();
+			while(it != perfil.end()){
+				if (p.codigo.compare(it->codigo)==0){
+					permisos.push_back(p);
+					//cout << "permiso " << p.codigo << p.descripcion << "Fue guardado." << endl;
+					break;
+				}
+				//cout << "#Mis permisos" << endl;
+				//cout << it->username << " " << it->codigo << endl;
+				it++;
+			}
+		//p.to_string();
+	 	//cout << "Total de modulos: " << contador << p.codigo << p.descripcion << endl;
+		contador = contador + 1;
+	 	}
+	}	
+	
+	void iniciar(){
+		leer_perfil();
+		cargar_permisos();
+		//cargar_modulos();	
 	}
 
 	void decodificar(string hash="|||"){
@@ -80,7 +122,9 @@ public:
 		full_name = hash.substr(0,hash.find(delimiter));
 		hash.erase(0,full_name.length()+delimiter.length());
 		profile = hash.substr(0,hash.find(delimiter));
-		leer_perfil();		
+		//leer_perfil();
+		//cargar_permisos();
+		//cargar_modulos();		
 	}
 };
 
@@ -109,8 +153,13 @@ void imprimir_opciones(Usuario sesion){
 };
 
 
+int salir(){
+cout << "Cerrando sesion de usuario " << endl;
+return 0;
+};
+
 int inicio(){
-cout << "Modulo en contruccion ... " << endl;
+cout << "Modulo en contruccion ...  " << endl;
 return 0;
 };
 
@@ -120,6 +169,11 @@ return 0;
 };
 
 int pagos(){
+cout << "Modulo en contruccion ... " << endl;
+return 0;
+};
+
+int stock(){
 cout << "Modulo en contruccion ... " << endl;
 return 0;
 };
@@ -134,34 +188,58 @@ cout << "Modulo en contruccion ... " << endl;
 return 0;
 };
 
-int moscelaneos(){
+int miscelaneos(){
 cout << "Modulo en contruccion ... " << endl;
 return 0;
 };
 int menu_principal(Usuario sesion){
   int opcion;
-  opcion = 0;
-  cout << "Menu para " << sesion.full_name << endl;
-  cout << "0. Salir" << endl;
-  cout << "1. Inicio" << endl;
-  cout << "2. Pedidos " << endl;
-  cout << "3. pagos " << endl;
-  cout << "4. finanzar " << endl;
-  cout << "5. mantenimiento " << endl;
-  cout << "6. miscelaneos " << endl;
-  cout << "Seleccionar opcion:";
-  cin >> opcion;
-  switch(opcion){	
-  case 1 :
-  	inicio();
-  	break;
-  case 2 :
-  	pedidos();
-  	break;
-  default:
-  cout << "Opcion invalida." << endl;	 
-  }
-  cout << endl;
+  //opcion = 0;
+  list<Permiso> mis_permisos = sesion.permisos;
+  list<Permiso>::iterator it;
+	while (opcion!=0){
+  		it = mis_permisos.begin();
+	  //Mostrando la lista de modulos segun permisos
+	  cout << "+---------------------+"<< endl;
+	  cout << "|---MENU PRINCIPAL----|"<< endl;
+	  cout << "+---------------------+"<< endl;
+	  cout << "| 0." << " SALIR."<< endl;
+	  while(it != mis_permisos.end()){
+			cout << "| " << it->codigo << ". "<< it->descripcion << "." << endl;
+			it++;
+		}
+	  cout << "+---------------------+"<< endl;
+		cout << "Seleccionar:";
+		cin >> opcion;
+		switch(opcion){	
+			 case 0 :
+			 	salir();
+			 	break;
+			 case 1 :
+			 	inicio();
+			  	break;
+			 case 2 :
+			  	pedidos();
+			  	break;
+			 case 3 :
+			  	pagos();
+			  	break;
+			 case 4 :
+			  	stock();
+			  	break;
+			 case 5 :
+			  	finanzas();
+			  	break;
+			 case 6 :
+			  	mantenimiento();
+			  	break;
+			 case 7 :
+			  	miscelaneos();
+			  	break;
+			 default:
+		  		cout << "Opcion invalida." << endl;	 
+	 	}
+	}
 
   return 1;
 };
@@ -201,35 +279,30 @@ Usuario login(list<Usuario> usuarios){
 		}
 		it++;
 	}
-  cout << ok << endl;
+  //cout << ok << endl;
   }
   return sesion;
 };
 
 int main(){
- int logeo;
- Usuario sesion;
- // Usando comandos unix
- system("clear");
- //system("cat logo.txt");
- print_logo();
  list<Usuario> usuarios;
- //Usuario usuarios[10]; 
- ifstream in("usuarios.txt");
+ Usuario sesion;
  string s,reg;
  int contador;
  // Cargamos los usuarios guardados
  contador = 0;
+ ifstream in("usuarios.txt");
  while (getline(in,reg)){	
 	Usuario u;
 	u.decodificar(reg);
 	usuarios.push_back(u);
 	contador = contador + 1;
  }
+// Usando comandos unix
+system("clear");
+print_logo();
 sesion = login(usuarios); 
+sesion.iniciar();
 menu_principal(sesion);
- //if (login(usuarios)==1){
- //	menu_principal();
- //}
- return 0;
+return 0;
 }
