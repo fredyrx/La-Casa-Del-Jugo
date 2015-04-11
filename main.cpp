@@ -4,19 +4,76 @@
 #include <list>
 
 using namespace std;
+/* Metodos de apoyo */
+string digit_to_string(int valor){
+	/* Transforma un digito a string */
+	string respuesta;
+	switch(valor){
+		case 1:
+		respuesta = "1";
+		break;
+		case 2:
+		respuesta = "2";
+		break;
+		case 3:
+		respuesta = "3";
+		break;
+		case 4:
+		respuesta = "4";
+		break;
+		case 5:
+		respuesta = "5";
+		break;
+		case 6:
+		respuesta = "6";
+		break;
+		case 7:
+		respuesta = "7";
+		break;
+		default:
+		respuesta = "0";
+		break;
+	}
+return respuesta;
+};
 
+string pull_left(string cadena, int cantidad, string caracter=" "){
+	/* funcion que rellena con caracteres a la derecha de una cadena */
+	string respuesta = cadena;
+	int longitud = cadena.length();
+ 	if (cantidad > longitud){
+	 	for (int i=0;i < cantidad - longitud;i++){
+			respuesta = respuesta + caracter;
+			//cout << i << respuesta << endl;
+		}
+ 	}else{
+ 		respuesta = cadena.substr(0,longitud-1);
+ 	}
+	return respuesta;
+};
+
+void pausa(){
+	string null;
+	cout << "Enter para continuar ...";
+	cin.ignore();
+	cout << endl;
+		
+};
+/* Objetos */
 class Permiso {
 	public:
 	string delimiter;
 	string codigo, descripcion;
 	void decodificar(string hash){
-	delimiter = '|';
-	codigo = hash.substr(0,hash.find(delimiter));
-	hash.erase(0,codigo.length()+delimiter.length());
-	descripcion = hash.substr(0,hash.find(delimiter));
-	hash.erase(0,descripcion.length()+delimiter.length());
+		/* Tranforma cadela en atributos de objeto */
+		delimiter = '|';
+		codigo = hash.substr(0,hash.find(delimiter));
+		hash.erase(0,codigo.length()+delimiter.length());
+		descripcion = hash.substr(0,hash.find(delimiter));
+		hash.erase(0,descripcion.length()+delimiter.length());
 	}
 	void to_string(){
+		/* Imprime descripcion del objeto */
 		cout << codigo << " " << descripcion << endl;
 	}
 };
@@ -26,13 +83,15 @@ class UsuarioPermiso {
 	string delimiter;
 	string username, codigo;
 	void decodificar(string hash){
-	delimiter = '|';
-	username = hash.substr(0,hash.find(delimiter));
-	hash.erase(0,username.length()+delimiter.length());
-	codigo = hash.substr(0,hash.find(delimiter));
-	hash.erase(0,codigo.length()+delimiter.length());
+		/* Tranforma cadena en atributos de objeto */
+		delimiter = '|';
+		username = hash.substr(0,hash.find(delimiter));
+		hash.erase(0,username.length()+delimiter.length());
+		codigo = hash.substr(0,hash.find(delimiter));
+		hash.erase(0,codigo.length()+delimiter.length());
 	}
 	void to_string(){
+		/* Imprime descripción de objeto */
 		cout << username << "|" << codigo << endl;
 	}
 };
@@ -48,8 +107,8 @@ public:
 		// A partir de la cadena separamos los parametros
 	};
 	void leer_perfil(){
-		//cout << "Leyendo perfil de usuario ..." << endl;
-		ifstream in("perfiles.txt");
+		/* Lee los los modulos habilitados para el usuario */
+		ifstream in("db/perfiles.db");
 	 	string s,reg;
 	 	int contador;
 	 	// Cargamos los permisos segun perfil
@@ -66,20 +125,10 @@ public:
 	 	//cout << "Total de permisos: " << perfil.size() << endl;
 	}
 
-	// Metodo no usado
-	void cargar_modulos(){
-		list<UsuarioPermiso>::iterator it;
-		it = perfil.begin();
-		// Hasta recorrer todos los emementos
-		while(it != perfil.end()){
-			cout << "#Mis permisos" << endl;
-			cout << it->username << " " << it->codigo << endl;
-			it++;
-		}
-	}
 	void cargar_permisos(){
-		cout << "Cargando modulos de usuario ..." << endl;
-		ifstream in("modulos.txt");
+		/* Carga los permisos según el perfil leido */
+		//cout << "Cargando modulos de usuario ..." << endl;
+		ifstream in("db/modulos.db");
 	 	string s,reg;
 		list<UsuarioPermiso>::iterator it;
 	 	int contador;
@@ -107,12 +156,13 @@ public:
 	}	
 	
 	void iniciar(){
+		/* inicializa el objeto*/
 		leer_perfil();
 		cargar_permisos();
-		//cargar_modulos();	
 	}
 
 	void decodificar(string hash="|||"){
+		/* convierte cadena a parametros de objeto*/
 		delimiter = '|';
 		text_encoded = hash;
 		username = hash.substr(0,hash.find(delimiter));
@@ -126,10 +176,32 @@ public:
 		//cargar_permisos();
 		//cargar_modulos();		
 	}
-};
 
-int print_logo(){
-	ifstream input("logo.txt");
+	int tiene_permiso(int opcion){
+		/* valida si el usuario tiene el permiso que ingresa*/
+		int respuesta = 0;
+		list<Permiso>::iterator it;
+		it = permisos.begin();
+		while(it != permisos.end()){ 
+			if (it->codigo.compare(digit_to_string(opcion))==0){
+				respuesta = 1;
+				break;
+			}
+			it++;
+		}
+		return respuesta;
+	}
+
+	void to_string(){
+	    //cout << "+---------+------------------+" << endl;
+	    string row = "| " + pull_left(username,9," ") + "| " + pull_left(full_name,19," ") + "|" ;
+		//cout << "|" << pull_left(username,10," ") << "|" << pull_left(full_name,20," ") << "|" << endl;
+		cout << row << endl;
+	}
+};
+int imprimir_logo(){
+	/* Imprime logo de empresa */
+	ifstream input("db/logo.db");
 	string s,line;
 	while (getline(input,line)){	
 		cout << line << endl;
@@ -138,7 +210,7 @@ int print_logo(){
 };
 
 void imprimir_opciones(Usuario sesion){
-	ifstream in("perfiles.txt");
+	ifstream in("db/perfiles.db");
 	 string s,reg;
 	 int contador;
 	 list<Usuario> usuarios;
@@ -182,18 +254,60 @@ int finanzas(){
 cout << "Modulo en contruccion ... " << endl;
 return 0;
 };
+/* Metodos para mantenimiento */
+void listar_usuarios(){
+	string registro;
+	ifstream in("db/usuarios.db");
+	cout << "+----------+--------------------+" << endl;
+	cout << "| CODIGO   | NOMBRE COMPLETO    |" << endl;
+	cout << "+----------+--------------------+" << endl;
+	while (getline(in,registro)){	
+		Usuario u;
+		u.decodificar(registro);
+		u.iniciar();
+		u.to_string();
+	}
+	cout << "+----------+--------------------+" << endl;
+};
 
-int mantenimiento(){
-cout << "Modulo en contruccion ... " << endl;
+int mantenimiento(Usuario sesion){
+	/* Menu de modulo de mantenimiento*/
+	int opcion;
+	opcion = 1;
+	while (opcion != 0) {
+		cout << "+---------------------+"<< endl;
+		cout << "|----MANTENIMIENTO----|"<< endl;
+		cout << "+---------------------+"<< endl;		
+		cout << "| 0. ATRAS            |" << endl;	
+		cout << "| 1. LISTAR USUARIOS  |" << endl;	
+		cout << "| 2. LISTAR PERMISOS  |" << endl;	
+		cout << "+---------------------+" << endl;	
+		cout << "Seleccionar:";
+		cin >> opcion;
+		switch(opcion){
+			case 0:
+			break;
+			case 1:
+				listar_usuarios();
+				break;
+			case 2:
+				cout << "Opción en construcción." << endl;
+			break;
+			default:
+			cout << "Opción no existe" << endl;
+		}
+	}
+	//cout << "Fin de mantenimieto" << endl;
 return 0;
 };
 
 int miscelaneos(){
-cout << "Modulo en contruccion ... " << endl;
+cout << "Modulo en contrucción ... " << endl;
 return 0;
 };
 int menu_principal(Usuario sesion){
-  int opcion;
+	/* Menu pricipal según perfil de usuario */
+  int opcion = 1;
   //opcion = 0;
   list<Permiso> mis_permisos = sesion.permisos;
   list<Permiso>::iterator it;
@@ -203,48 +317,62 @@ int menu_principal(Usuario sesion){
 	  cout << "+---------------------+"<< endl;
 	  cout << "|---MENU PRINCIPAL----|"<< endl;
 	  cout << "+---------------------+"<< endl;
-	  cout << "| 0." << " SALIR."<< endl;
+	  cout << "|" + pull_left(" 0 SALIR.",21)+ "|"<< endl;
 	  while(it != mis_permisos.end()){
-			cout << "| " << it->codigo << ". "<< it->descripcion << "." << endl;
+			//cout << "| " << it->codigo << " "<< it->descripcion << "." << endl;
+			cout << "| " << pull_left(it->codigo + " " + it->descripcion + ".",20) << "|"<< endl;
 			it++;
 		}
 	  cout << "+---------------------+"<< endl;
 		cout << "Seleccionar:";
 		cin >> opcion;
-		switch(opcion){	
-			 case 0 :
-			 	salir();
-			 	break;
-			 case 1 :
-			 	inicio();
-			  	break;
-			 case 2 :
-			  	pedidos();
-			  	break;
-			 case 3 :
-			  	pagos();
-			  	break;
-			 case 4 :
-			  	stock();
-			  	break;
-			 case 5 :
-			  	finanzas();
-			  	break;
-			 case 6 :
-			  	mantenimiento();
-			  	break;
-			 case 7 :
-			  	miscelaneos();
-			  	break;
-			 default:
-		  		cout << "Opcion invalida." << endl;	 
-	 	}
+  		if (sesion.tiene_permiso(opcion)){
+  			//cout << "tiene permiso" << endl;
+			switch(opcion){	
+				 case 0 :
+				 	salir();
+				 	break;
+				 case 1 :
+				 	inicio();
+				  	break;
+				 case 2 :
+				  	pedidos();
+				  	break;
+				 case 3 :
+				  	pagos();
+				  	break;
+				 case 4 :
+				  	stock();
+
+				  	break;
+				 case 5 :
+				  	finanzas();
+				  	break;
+				 case 6 :
+				 	cout << "Modulo de mantenimiento" << endl;
+				  	mantenimiento(sesion);
+	 
+				  	break;
+				 case 7 :
+				  	miscelaneos();
+				  	break;
+				 default:
+			  		cout << "Opcion inválida." << endl;
+		 	}
+  		}else{
+  			if (opcion!=0){
+  				cout << "Ingrese una opción válida." << endl;
+  			}else{
+  				salir();
+  			}
+  		}
 	}
 
   return 1;
 };
 // Metodo que retorna el usuario de sesion
 Usuario login(list<Usuario> usuarios){
+	/* Metodo que genera sesion de usuario correctamente logueado */
   //cout << "TOTAL DE USUARIOS" << usuarios.size() << endl; 
   list<Usuario>::iterator it;
   string user;
@@ -285,24 +413,26 @@ Usuario login(list<Usuario> usuarios){
 };
 
 int main(){
- list<Usuario> usuarios;
- Usuario sesion;
- string s,reg;
- int contador;
- // Cargamos los usuarios guardados
- contador = 0;
- ifstream in("usuarios.txt");
- while (getline(in,reg)){	
-	Usuario u;
-	u.decodificar(reg);
-	usuarios.push_back(u);
-	contador = contador + 1;
- }
-// Usando comandos unix
-system("clear");
-print_logo();
-sesion = login(usuarios); 
-sesion.iniciar();
-menu_principal(sesion);
-return 0;
+	/* Metodo principal */
+	list<Usuario> usuarios;
+	Usuario sesion;
+	string s,reg;
+	int contador;
+	// Cargamos los usuarios guardados
+	//contador = 0;
+	ifstream in("db/usuarios.db");
+	while (getline(in,reg)){	
+		Usuario u;
+		u.decodificar(reg);
+		usuarios.push_back(u);
+	//	contador = contador + 1;
+	}
+	// Usando comandos unix
+	system("clear");
+	imprimir_logo();
+	pausa();
+	sesion = login(usuarios); 
+	sesion.iniciar();
+	menu_principal(sesion);
+	return 0;
 }
