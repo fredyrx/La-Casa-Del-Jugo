@@ -44,7 +44,6 @@ string pull_left(string cadena, int cantidad, string caracter=" "){
  	if (cantidad > longitud){
 	 	for (int i=0;i < cantidad - longitud;i++){
 			respuesta = respuesta + caracter;
-			//cout << i << respuesta << endl;
 		}
  	}else{
  		respuesta = cadena.substr(0,longitud-1);
@@ -103,7 +102,6 @@ public:
 	list<Permiso> permisos;
 	list<UsuarioPermiso> perfil;
 	Usuario(){
-		//decodificar(hash);
 		// A partir de la cadena separamos los parametros
 	};
 	void leer_perfil(){
@@ -122,12 +120,10 @@ public:
 			//opcion.to_string();
 			contador = contador + 1;
 	 	}
-	 	//cout << "Total de permisos: " << perfil.size() << endl;
 	}
 
 	void cargar_permisos(){
 		/* Carga los permisos según el perfil leido */
-		//cout << "Cargando modulos de usuario ..." << endl;
 		ifstream in("db/modulos.db");
 	 	string s,reg;
 		list<UsuarioPermiso>::iterator it;
@@ -142,15 +138,10 @@ public:
 			while(it != perfil.end()){
 				if (p.codigo.compare(it->codigo)==0){
 					permisos.push_back(p);
-					//cout << "permiso " << p.codigo << p.descripcion << "Fue guardado." << endl;
 					break;
 				}
-				//cout << "#Mis permisos" << endl;
-				//cout << it->username << " " << it->codigo << endl;
 				it++;
 			}
-		//p.to_string();
-	 	//cout << "Total de modulos: " << contador << p.codigo << p.descripcion << endl;
 		contador = contador + 1;
 	 	}
 	}	
@@ -172,9 +163,6 @@ public:
 		full_name = hash.substr(0,hash.find(delimiter));
 		hash.erase(0,full_name.length()+delimiter.length());
 		profile = hash.substr(0,hash.find(delimiter));
-		//leer_perfil();
-		//cargar_permisos();
-		//cargar_modulos();		
 	}
 
 	int tiene_permiso(int opcion){
@@ -193,9 +181,7 @@ public:
 	}
 
 	void to_string(){
-	    //cout << "+---------+------------------+" << endl;
 	    string row = "| " + pull_left(username,9," ") + "| " + pull_left(full_name,19," ") + "|" ;
-		//cout << "|" << pull_left(username,10," ") << "|" << pull_left(full_name,20," ") << "|" << endl;
 		cout << row << endl;
 	}
 };
@@ -297,7 +283,6 @@ int mantenimiento(Usuario sesion){
 			cout << "Opción no existe" << endl;
 		}
 	}
-	//cout << "Fin de mantenimieto" << endl;
 return 0;
 };
 
@@ -308,7 +293,6 @@ return 0;
 int menu_principal(Usuario sesion){
 	/* Menu pricipal según perfil de usuario */
   int opcion = 1;
-  //opcion = 0;
   list<Permiso> mis_permisos = sesion.permisos;
   list<Permiso>::iterator it;
 	while (opcion!=0){
@@ -319,7 +303,6 @@ int menu_principal(Usuario sesion){
 	  cout << "+---------------------+"<< endl;
 	  cout << "|" + pull_left(" 0 SALIR.",21)+ "|"<< endl;
 	  while(it != mis_permisos.end()){
-			//cout << "| " << it->codigo << " "<< it->descripcion << "." << endl;
 			cout << "| " << pull_left(it->codigo + " " + it->descripcion + ".",20) << "|"<< endl;
 			it++;
 		}
@@ -327,7 +310,6 @@ int menu_principal(Usuario sesion){
 		cout << "Seleccionar:";
 		cin >> opcion;
   		if (sesion.tiene_permiso(opcion)){
-  			//cout << "tiene permiso" << endl;
 			switch(opcion){	
 				 case 0 :
 				 	salir();
@@ -373,7 +355,6 @@ int menu_principal(Usuario sesion){
 // Metodo que retorna el usuario de sesion
 Usuario login(list<Usuario> usuarios){
 	/* Metodo que genera sesion de usuario correctamente logueado */
-  //cout << "TOTAL DE USUARIOS" << usuarios.size() << endl; 
   list<Usuario>::iterator it;
   string user;
   string pass;
@@ -398,7 +379,6 @@ Usuario login(list<Usuario> usuarios){
 					ok = 1;
   					sesion.decodificar(it->text_encoded);
   					cout << "Bienvenido " << sesion.full_name << endl;	
-  					//menu_principal();
 					break;
 				}
 				it++;
@@ -407,7 +387,6 @@ Usuario login(list<Usuario> usuarios){
 		}
 		it++;
 	}
-  //cout << ok << endl;
   }
   return sesion;
 };
@@ -425,10 +404,10 @@ int main(){
 		Usuario u;
 		u.decodificar(reg);
 		usuarios.push_back(u);
-	//	contador = contador + 1;
 	}
 	// Usando comandos unix
-	system("clear");
+	system("clear"); // linux
+	system("cls"); // linux
 	imprimir_logo();
 	pausa();
 	sesion = login(usuarios); 
